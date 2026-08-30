@@ -18,10 +18,14 @@ pi_backend/
 │   ├── pi_process.py      # PI 子进程管理 (启动/读写/关闭)
 │   ├── pi_tool_backend.py # 工具调用 socket 后端
 │   └── pi_backend.py      # 高层封装 (指令发送 + 读写委托)
-├── factory/           # 响应模型分发
-│   └── responses_factory.py # 注册全部 33 个返回模型, 按 command 分发
+├── enums/             # 枚举层
+│   └── command_enum.py    # CommandEnum (33 个 RPC 指令名)
+├── factory/           # 模型分发
+│   ├── responses_factory.py # 响应模型工厂 (33 个, 按 command 分发)
+│   └── events_factory.py    # 事件模型工厂 (22 个, 按 type 分发)
 ├── models/            # 模型层
-│   ├── rpc_events/        # RPC 指令/响应模型 (33 个 command + 33 个 response)
+│   ├── rpc_events/        # RPC 指令/响应/事件模型
+│   │   └── server_events/ # 响应 (responses/) + 事件 (events/)
 │   ├── tool_events/       # 工具调用协议模型
 │   └── _internal/         # 内部辅助模型
 └── __init__.py         # 顶层导出: PIProcess, PIToolBackend, PIBackend, models
@@ -51,8 +55,8 @@ async def main():
     print(resp)  # {"type":"response","command":"get_state","success":true,...}
     
     await backend.prompt("你好")
-    model = await backend.read_pydantic() # 解析为对应响应模型
-    print(model.command, model.success)
+    model = await backend.read_pydantic() # 统一接口: 响应或事件模型
+    print(type(model).__name__, model.type)
     
     # 释放资源
     await backend.pi_process.close_process()
@@ -103,7 +107,7 @@ server, task = await backend.run_server()
 | 方法 | 说明 |
 |------|------|
 | `read_raw()` | 读取一行 JSON 并返回原始字典 |
-| `read_pydantic()` | 读取一行 JSON 并解析为对应响应模型 (按 command 分发) |
+| `read_pydantic()` | 统一读取接口: 解析为响应或事件模型 (按 command/type 分发) |
 | `write_jsonl(msg)` | 写入一行 JSON (委托 PIProcess) |
 | `prompt(message, images, streaming_behavior, request_id)` | 发送 prompt 指令 |
 | `set_model(provider, model_id, request_id)` | 切换模型 |
@@ -114,18 +118,25 @@ server, task = await backend.run_server()
 
 共 33 个指令发送方法，对应所有 RPC 指令类型。`request_id` 可选，提供后响应会回带相同 id 用于请求-响应关联。
 
-### responses_factory
+### responses_factory / events_factory
 
-基于 `easy_factory` 的模型分发工厂，注册了全部 33 个响应模型，按 `command` 判别字段自动分发：
+基于 `easy_factory` 的模型分发工厂，按判别字段自动分发：
 
 ```python
-from pi_backend.factory import responses_factory
+from pi_backend.factory import responses_factory, events_factory
 
+# 响应: 按 command 分发 (返回对应的 Response 模型)
 model = responses_factory.dispatcher({"type":"response","command":"get_state","success":True})
 # -> StateResponse 实例
+
+# 事件: 按 type 分发 (agent_start/message_update/bash_execution_update/extension_ui_request 等)
+event = events_factory.dispatcher({"type":"extension_ui_request","id":"u1","method":"setStatus"})
+# -> ExtensionUIRequestEvent 实例
 ```
 
-未知 `command` 抛出 `DispatchFailed`。所有响应模型的 `command` 均为唯一 `Literal`，保证分发正确。
+所有响应模型的 `command` 均为唯一 `Literal`，所有事件模型的 `type` 均为唯一 `Literal`，保证分发正确。未知类型抛出 `DispatchFailed`。
+
+`PIBackend.read_pydantic()` 即统一封装：优先匹配响应模型，非响应行回退到事件工厂——调用方拿到模型后自行决定使用或丢弃。
 
 ## 开发
 

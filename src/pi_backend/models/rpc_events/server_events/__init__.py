@@ -1,4 +1,5 @@
 from .base_response	import BaseResponse
+from ...base_event	import BaseEvent
 
 from .responses		import (
 	# Prompting
@@ -44,6 +45,42 @@ from .responses		import (
 	SetSessionNameResponse,
 	# Commands
 	GetCommandsResponse,
+)
+
+from .events	import (
+	BaseEvent,
+	# Agent
+	AgentStartEvent,
+	AgentEndEvent,
+	AgentSettledEvent,
+	# Turn
+	TurnStartEvent,
+	TurnEndEvent,
+	# Message
+	MessageStartEvent,
+	MessageUpdateEvent,
+	MessageEndEvent,
+	# Bash
+	BashExecutionUpdateEvent,
+	# Tool
+	ToolExecutionStartEvent,
+	ToolExecutionUpdateEvent,
+	ToolExecutionEndEvent,
+	# Queue
+	QueueUpdateEvent,
+	# Compaction
+	CompactionStartEvent,
+	CompactionEndEvent,
+	# Auto Retry
+	AutoRetryStartEvent,
+	AutoRetryEndEvent,
+	# Summarization Retry
+	SummarizationRetryScheduledEvent,
+	SummarizationRetryAttemptStartEvent,
+	SummarizationRetryFinishedEvent,
+	# Extension
+	ExtensionErrorEvent,
+	ExtensionUIRequestEvent,
 )
 
 
@@ -103,4 +140,39 @@ __all__ = [
 
 	# Commands
 	"GetCommandsResponse",
+
+	# Events
+	"BaseEvent",
+	# Agent
+	"AgentStartEvent",
+	"AgentEndEvent",
+	"AgentSettledEvent",
+	# Turn
+	"TurnStartEvent",
+	"TurnEndEvent",
+	# Message
+	"MessageStartEvent",
+	"MessageUpdateEvent",
+	"MessageEndEvent",
+	# Bash
+	"BashExecutionUpdateEvent",
+	# Tool
+	"ToolExecutionStartEvent",
+	"ToolExecutionUpdateEvent",
+	"ToolExecutionEndEvent",
+	# Queue
+	"QueueUpdateEvent",
+	# Compaction
+	"CompactionStartEvent",
+	"CompactionEndEvent",
+	# Auto Retry
+	"AutoRetryStartEvent",
+	"AutoRetryEndEvent",
+	# Summarization Retry
+	"SummarizationRetryScheduledEvent",
+	"SummarizationRetryAttemptStartEvent",
+	"SummarizationRetryFinishedEvent",
+	# Extension
+	"ExtensionErrorEvent",
+	"ExtensionUIRequestEvent",
 ]

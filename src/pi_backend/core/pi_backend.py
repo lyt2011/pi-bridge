@@ -1,11 +1,13 @@
 from .pi_tool_backend	import PIToolBackend
 from .pi_process		import PIProcess
 
-from ..factory		import responses_factory
+from ..factory		import responses_factory, events_factory
 
 from ..models	import (
 	BaseCommand,
+	BaseRPCEvent,
 	BaseResponse,
+	BaseEvent,
 	# Prompting
 	PromptCommand,
 	SteerCommand,
@@ -53,6 +55,8 @@ from ..models	import (
 
 from typing	import Dict, Any, Optional, List, Literal
 
+from easy_factory	import DispatchFailed
+
 import orjson
 
 
@@ -79,13 +83,17 @@ class PIBackend:
 		
 		return orjson.loads(line)
 	
-	async def read_pydantic(self) -> BaseResponse:
+	async def read_pydantic(self) -> BaseRPCEvent:
 		
-		"""读取一行 JSON 并解析为对应的响应模型"""
+		"""读取一行 JSON 并解析为对应的响应/事件模型"""
 		
 		data = await self.read_raw()
 		
-		return responses_factory.dispatcher(data)
+		# 优先匹配响应模型; 非响应行 (事件/扩展UI请求等) 回退到事件工厂
+		try:
+			return responses_factory.dispatcher(data)
+		except DispatchFailed:
+			return events_factory.dispatcher(data)
 	
 	async def write_jsonl(self, msg: str) -> None:
 		
