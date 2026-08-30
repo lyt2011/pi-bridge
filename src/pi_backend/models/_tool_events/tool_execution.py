@@ -1,10 +1,10 @@
-from .base_tool_event	import BaseToolEvent
+from .base_tool_event	import PrivateToolEvent
 
 from pydantic	import Field
 from typing		import Dict, Any
 
 
-class ToolExecution(BaseToolEvent):
+class PrivateToolExecution(PrivateToolEvent):
 	
 	type: str = "tool_execution"
 

@@ -1,4 +1,4 @@
-from ..models import ToolExecution, ToolResult, ToolExecutionEnd
+from ..models import PrivateToolExecution, PrivateToolResult, PrivateToolExecutionEnd
 from ..models._internal import ToolResultChunk, ToolEndFlag
 
 from typing		import Dict, Callable, Any, Awaitable, Tuple, Optional, AsyncIterable, Union
@@ -72,7 +72,7 @@ class PIToolBackend:
 			
 			_, writer = self._tool_waiter[id]
 		
-		await self._send(writer, ToolResult(id=id, result=str(result)).model_dump_json())
+		await self._send(writer, PrivateToolResult(id=id, result=str(result)).model_dump_json())
 	
 	async def send_end(self, id: str, reason: Optional[str] = None) -> None:
 		
@@ -89,7 +89,7 @@ class PIToolBackend:
 			
 			_, writer = self._tool_waiter[id]
 		
-		await self._send(writer, ToolExecutionEnd(id=id, reason=reason).model_dump_json())
+		await self._send(writer, PrivateToolExecutionEnd(id=id, reason=reason).model_dump_json())
 	
 	async def close_backend(self) -> None:
 		
@@ -158,7 +158,7 @@ class PIToolBackend:
 		
 		"""
 		处理单个工具调用请求:
-		读取一帧 ToolExecution → 注册 waiter → 执行工具并自动发送结果/结束帧 → 关闭连接
+		读取一帧 PrivateToolExecution → 注册 waiter → 执行工具并自动发送结果/结束帧 → 关闭连接
 		无论正常/异常/取消,finally 都会确保连接关闭、waiter 清理
 		"""
 		
@@ -171,7 +171,7 @@ class PIToolBackend:
 			self._connections.add(writer)
 			self._handler_tasks.add(handler_task)
 		
-		tool_execution: Optional[ToolExecution] = None
+		tool_execution: Optional[PrivateToolExecution] = None
 		
 		try:
 		
@@ -282,10 +282,10 @@ class PIToolBackend:
 		
 		return b_msg
 	
-	async def _recv_tool_request(self, reader: StreamReader) -> Optional[ToolExecution]:
+	async def _recv_tool_request(self, reader: StreamReader) -> Optional[PrivateToolExecution]:
 		
 		"""
-		读取一帧请求并解析为 ToolExecution
+		读取一帧请求并解析为 PrivateToolExecution
 		失败则返回 None
 		"""
 		
@@ -293,7 +293,7 @@ class PIToolBackend:
 		
 			b_first_msg = await self._recv_line(reader)
 			first_msg = b_first_msg.decode("utf-8")
-			return ToolExecution.model_validate_json(first_msg)
+			return PrivateToolExecution.model_validate_json(first_msg)
 		
 		except Exception:
 			return None

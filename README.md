@@ -26,7 +26,7 @@ pi_backend/
 ├── models/            # 模型层
 │   ├── rpc_events/        # RPC 指令/响应/事件模型
 │   │   └── server_events/ # 响应 (responses/) + 事件 (events/)
-│   ├── tool_events/       # 工具调用协议模型
+│   ├── _tool_events/      # 私有工具调用协议模型 (python↔pi 桥接)
 │   └── _internal/         # 内部辅助模型
 └── __init__.py         # 顶层导出: PIProcess, PIToolBackend, PIBackend, models, CommandEnum
 ```

@@ -1,8 +1,8 @@
-from .tool_events	import (
-	BaseToolEvent,
-	ToolExecution,
-	ToolResult,
-	ToolExecutionEnd
+from ._tool_events	import (
+	PrivateToolEvent,
+	PrivateToolExecution,
+	PrivateToolResult,
+	PrivateToolExecutionEnd
 )
 
 from .rpc_events	import BaseRPCEvent
@@ -128,11 +128,11 @@ from .rpc_events.server_events	import (
 
 __all__ = [
 
-	# tool_events
-	"BaseToolEvent",
-	"ToolExecution",
-	"ToolResult",
-	"ToolExecutionEnd",
+	# _tool_events
+	"PrivateToolEvent",
+	"PrivateToolExecution",
+	"PrivateToolResult",
+	"PrivateToolExecutionEnd",
 
 	# rpc_events base
 	"BaseRPCEvent",

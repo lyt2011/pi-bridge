@@ -1,10 +1,10 @@
-from .base_tool_event	import BaseToolEvent
+from .base_tool_event	import PrivateToolEvent
 
 from pydantic	import Field
 from typing		import Optional
 
 
-class ToolExecutionEnd(BaseToolEvent):
+class PrivateToolExecutionEnd(PrivateToolEvent):
 	
 	type: str = "tool_execution_end"
 	
