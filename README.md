@@ -28,7 +28,7 @@ pi_backend/
 │   │   └── server_events/ # 响应 (responses/) + 事件 (events/)
 │   ├── tool_events/       # 工具调用协议模型
 │   └── _internal/         # 内部辅助模型
-└── __init__.py         # 顶层导出: PIProcess, PIToolBackend, PIBackend, models
+└── __init__.py         # 顶层导出: PIProcess, PIToolBackend, PIBackend, models, CommandEnum
 ```
 
 ## 快速开始
