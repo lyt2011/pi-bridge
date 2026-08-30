@@ -1,4 +1,5 @@
 from ..base_response	import BaseResponse
+from .....enums	import CommandEnum
 from typing		import Literal
 
 
@@ -6,4 +7,4 @@ class GetLastAssistantTextResponse(BaseResponse):
 	
 	"""GetLastAssistantTextResponse 响应模型"""
 	
-	command: Literal["get_last_assistant_text"] = "get_last_assistant_text"
+	command: Literal[CommandEnum.GET_LAST_ASSISTANT_TEXT] = CommandEnum.GET_LAST_ASSISTANT_TEXT

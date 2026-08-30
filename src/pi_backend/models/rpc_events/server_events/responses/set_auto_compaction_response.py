@@ -1,4 +1,5 @@
 from ..base_response	import BaseResponse
+from .....enums	import CommandEnum
 from typing		import Literal
 
 
@@ -6,4 +7,4 @@ class SetAutoCompactionResponse(BaseResponse):
 	
 	"""SetAutoCompactionResponse 响应模型"""
 	
-	command: Literal["set_auto_compaction"] = "set_auto_compaction"
+	command: Literal[CommandEnum.SET_AUTO_COMPACTION] = CommandEnum.SET_AUTO_COMPACTION
