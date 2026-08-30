@@ -5,10 +5,13 @@ PI AGENT 的 Python 后端封装。提供进程管理、RPC 指令发送、工�
 ## 安装
 
 ```bash
-pip install /path/to/pi-backend/  # easy-factory 需另行安装(本地包)
+# easy-factory 为本地依赖包, 需先安装
+pip install /path/to/easy_factory/
+# 再安装本包
+pip install /path/to/pi-backend/
 ```
 
-需要 Python >= 3.11, pydantic >= 2.13。
+需要 Python >= 3.11, pydantic >= 2.13.4。
 
 ## 架构
 
@@ -25,6 +28,7 @@ pi_backend/
 │   └── events_factory.py    # 事件模型工厂 (22 个, 按 type 分发)
 ├── models/            # 模型层
 │   ├── rpc_events/        # RPC 指令/响应/事件模型
+│   │   ├── client_events/ # 指令模型 (33 个, 含 base_command 基类)
 │   │   └── server_events/ # 响应 (responses/) + 事件 (events/)
 │   ├── _tool_events/      # 私有工具调用协议模型 (python↔pi 桥接)
 │   └── _internal/         # 内部辅助模型
@@ -87,7 +91,7 @@ server, task = await backend.run_server()
 
 | 方法 | 说明 |
 |------|------|
-| `build_process(pi_path, session, session_dir, tools, system_prompt)` | 构建并启动 pi 子进程 (RPC 模式) |
+| `build_process(*, pi_path, session, session_dir, tools, system_prompt)` | 构建并启动 pi 子进程 (RPC 模式, 全部关键字传参) |
 | `read_line()` | 从 stdout 读取一行 (UTF-8) |
 | `write_line(*lines)` | 向 stdin 写入一行或多行 (自动补 \n) |
 | `close_process()` | 关闭 stdin 并等待进程退出 |
@@ -110,6 +114,7 @@ server, task = await backend.run_server()
 | `read_pydantic()` | 统一读取接口: 解析为响应或事件模型 (按 command/type 分发) |
 | `write_jsonl(msg)` | 写入一行 JSON (委托 PIProcess) |
 | `prompt(message, images, streaming_behavior, request_id)` | 发送 prompt 指令 |
+| `follow_up(message, images, request_id)` | 排队投递 follow-up 消息 (**agent 空闲时不触发**, 请用 prompt 代替) |
 | `set_model(provider, model_id, request_id)` | 切换模型 |
 | `get_state(request_id)` | 获取当前状态 |
 | `bash(command, exclude_from_context, request_id)` | 执行 shell 命令 |
@@ -144,9 +149,9 @@ event = events_factory.dispatcher({"type":"extension_ui_request","id":"u1","meth
 # 安装依赖
 pip install pydantic orjson easy-factory
 
-# 测试
+# 测试 (100 个测试用例)
 PYTHONPATH=src pytest
-```
+``````
 
 ## 依赖
 

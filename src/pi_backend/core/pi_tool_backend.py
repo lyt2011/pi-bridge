@@ -19,6 +19,7 @@ class PIToolBackend:
 	
 	"""
 	PI 的私有工具协议后端
+	**不是 PI 官方的协议**
 	"""
 
 	def __init__(
@@ -328,8 +329,9 @@ class PIToolBackend:
 	
 	async def _close_server(self) -> None:
 		
+		# server 未启动时无需清理(幂等)
 		if self.task is None or self.server is None:
-			raise RuntimeError(f"Server is not Ready")
+			return None
 		
 		# 关闭 socket 管道
 		self.server.close()
@@ -339,5 +341,8 @@ class PIToolBackend:
 		with suppress(asyncio.CancelledError):
 			self.task.cancel()
 			await self.task
+		
+		self.task = None
+		self.server = None
 		
 		return None

@@ -136,7 +136,15 @@ class PIBackend:
 		request_id: Optional[str] = None
 	) -> None:
 		
-		"""发送 follow_up 指令"""
+		"""发送 follow_up 指令(排队投递)
+		
+		⚠️ pi 的 follow_up 是"排队"语义:消息进入队列,但**空闲时不触发新处理**。
+		只有在 agent 正在运行时(流式中)或后续 prompt 启动新 run 时,才会被消费。
+		实证:agent_settled 后发 follow_up,只会收到 queue_update + response,
+		不会有任何 agent_start/turn_start/message_start;需再发一条 prompt 才会
+		连带消费队列里的 follow_up(表现为第二次 turn)。
+		因此:若 agent 已空闲,请改用 prompt() 而非 follow_up()。
+		"""
 		
 		await self._send_command(FollowUpCommand(message=message, images=images, id=request_id))
 	
