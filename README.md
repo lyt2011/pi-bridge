@@ -5,7 +5,7 @@ PI AGENT 的 Python 后端封装。提供进程管理、RPC 指令发送、工�
 ## 安装
 
 ```bash
-pip install /path/to/pi-backend/
+pip install /path/to/pi-backend/  # easy-factory 需另行安装(本地包)
 ```
 
 需要 Python >= 3.11, pydantic >= 2.13。
@@ -18,6 +18,8 @@ pi_backend/
 │   ├── pi_process.py      # PI 子进程管理 (启动/读写/关闭)
 │   ├── pi_tool_backend.py # 工具调用 socket 后端
 │   └── pi_backend.py      # 高层封装 (指令发送 + 读写委托)
+├── factory/           # 响应模型分发
+│   └── responses_factory.py # 注册全部 33 个返回模型, 按 command 分发
 ├── models/            # 模型层
 │   ├── rpc_events/        # RPC 指令/响应模型 (33 个 command + 33 个 response)
 │   ├── tool_events/       # 工具调用协议模型
@@ -45,12 +47,12 @@ async def main():
     
     # 发送指令
     await backend.get_state()
-    resp = await backend.read_jsonl()
+    resp = await backend.read_raw()       # 原始字典
     print(resp)  # {"type":"response","command":"get_state","success":true,...}
     
     await backend.prompt("你好")
-    prompt_resp = await backend.read_jsonl()
-    print(prompt_resp)
+    model = await backend.read_pydantic() # 解析为对应响应模型
+    print(model.command, model.success)
     
     # 释放资源
     await backend.pi_process.close_process()
@@ -100,7 +102,8 @@ server, task = await backend.run_server()
 
 | 方法 | 说明 |
 |------|------|
-| `read_jsonl()` | 读取一行并解析为 dict |
+| `read_raw()` | 读取一行 JSON 并返回原始字典 |
+| `read_pydantic()` | 读取一行 JSON 并解析为对应响应模型 (按 command 分发) |
 | `write_jsonl(msg)` | 写入一行 JSON (委托 PIProcess) |
 | `prompt(message, images, streaming_behavior, request_id)` | 发送 prompt 指令 |
 | `set_model(provider, model_id, request_id)` | 切换模型 |
@@ -111,11 +114,24 @@ server, task = await backend.run_server()
 
 共 33 个指令发送方法，对应所有 RPC 指令类型。`request_id` 可选，提供后响应会回带相同 id 用于请求-响应关联。
 
+### responses_factory
+
+基于 `easy_factory` 的模型分发工厂，注册了全部 33 个响应模型，按 `command` 判别字段自动分发：
+
+```python
+from pi_backend.factory import responses_factory
+
+model = responses_factory.dispatcher({"type":"response","command":"get_state","success":True})
+# -> StateResponse 实例
+```
+
+未知 `command` 抛出 `DispatchFailed`。所有响应模型的 `command` 均为唯一 `Literal`，保证分发正确。
+
 ## 开发
 
 ```bash
 # 安装依赖
-pip install pydantic orjson
+pip install pydantic orjson easy-factory
 
 # 测试
 PYTHONPATH=src pytest
@@ -125,3 +141,4 @@ PYTHONPATH=src pytest
 
 - `pydantic >= 2.13.4` — 模型定义与校验
 - `orjson >= 3.10` — 高性能 JSON 解析
+- `easy-factory >= 1.0.0` — 响应模型分发 (本地包, 需单独安装)

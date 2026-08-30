@@ -1,8 +1,11 @@
 from .pi_tool_backend	import PIToolBackend
 from .pi_process		import PIProcess
 
+from ..factory		import responses_factory
+
 from ..models	import (
 	BaseCommand,
+	BaseResponse,
 	# Prompting
 	PromptCommand,
 	SteerCommand,
@@ -68,13 +71,21 @@ class PIBackend:
 		self.tool_backend	= tool_backend
 		self.pi_process		= pi_process
 	
-	async def read_jsonl(self) -> Dict[str, Any]:
+	async def read_raw(self) -> Dict[str, Any]:
 		
-		"""读取一行 JSON 并解析为字典"""
+		"""读取一行 JSON 并返回原始字典"""
 		
 		line = await self.pi_process.read_line()
 		
 		return orjson.loads(line)
+	
+	async def read_pydantic(self) -> BaseResponse:
+		
+		"""读取一行 JSON 并解析为对应的响应模型"""
+		
+		data = await self.read_raw()
+		
+		return responses_factory.dispatcher(data)
 	
 	async def write_jsonl(self, msg: str) -> None:
 		

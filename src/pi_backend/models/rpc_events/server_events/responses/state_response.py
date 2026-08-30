@@ -1,8 +1,9 @@
 from ..base_response	import BaseResponse
+from typing		import Literal
 
 
 class StateResponse(BaseResponse):
 	
 	"""StateResponse 响应模型"""
 	
-	command: str = "get_state"
+	command: Literal["get_state"] = "get_state"
