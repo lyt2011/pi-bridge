@@ -19,8 +19,9 @@ pip install /path/to/pi-backend/
 pi_backend/
 ├── core/              # 核心层
 │   ├── pi_process.py      # PI 子进程管理 (启动/读写/关闭)
+│   ├── pi_transport.py    # 传输层 (序列化 + 工厂校验, 不碰进程)
+│   ├── pi_client.py       # 类型化 RPC 客户端 (后台 reader + id→Future 路由 + 事件广播)
 │   ├── pi_tool_backend.py # 工具调用 socket 后端
-│   └── pi_backend.py      # 高层封装 (指令发送 + 读写委托)
 ├── enums/             # 枚举层
 │   └── command_enum.py    # CommandEnum (33 个 RPC 指令名)
 ├── factory/           # 模型分发
@@ -32,7 +33,9 @@ pi_backend/
 │   │   └── server_events/ # 响应 (responses/) + 事件 (events/)
 │   ├── _tool_events/      # 私有工具调用协议模型 (python↔pi 桥接)
 │   └── _internal/         # 内部辅助模型
-└── __init__.py         # 顶层导出: PIProcess, PIToolBackend, PIBackend, models, CommandEnum
+├── protocols/          # 协议层
+│   └── io.py              # LineProtocol: 线级 IO 协议 (鸭子类型, 供 PiTransport 注入)
+└── __init__.py         # 顶层导出: PIProcess, PIToolBackend, PiClient, PiTransport, models, CommandEnum
 ```
 
 ## 快速开始
@@ -41,29 +44,29 @@ pi_backend/
 
 ```python
 import asyncio
-from pi_backend import PIProcess, PIBackend
+from pi_backend import PiClient
 
 async def main():
-    # 构建 pi 子进程 (RPC 模式)
-    proc = await PIProcess.build_process(
+    # 一条龙: 建进程 → 建传输 → 起后台 reader
+    client = await PiClient.connect(
         session_dir = "/tmp/pi_session",
         tools      = ["bash", "read"],
         system_prompt = "你是助手",
     )
     
-    backend = PIBackend(pi_process=proc)
+    # 发指令 → 自动等对应响应 (id→Future 路由)
+    resp = await client.get_state()
+    print(resp.data)  # StateData
     
-    # 发送指令
-    await backend.get_state()
-    resp = await backend.read_raw()       # 原始字典
-    print(resp)  # {"type":"response","command":"get_state","success":true,...}
+    # prompt 流式: async generator, 到 agent_settled 结束
+    async for evt in client.prompt("你好"):
+        print(type(evt).__name__, evt)
     
-    await backend.prompt("你好")
-    model = await backend.read_pydantic() # 统一接口: 响应或事件模型
-    print(type(model).__name__, model.type)
+    # 事件广播订阅 (ambient 事件)
+    q = client.subscribe()
     
     # 释放资源
-    await backend.pi_process.close_process()
+    await client.close()
 
 asyncio.run(main())
 ```
@@ -106,22 +109,28 @@ server, task = await backend.run_server()
 | `close_backend()` | 关闭所有连接和 socket 服务 |
 | `run_server(**kwargs)` | 启动 socket 监听 |
 
-### PIBackend
+### PiClient (推荐)
 
 | 方法 | 说明 |
 |------|------|
-| `read_raw()` | 读取一行 JSON 并返回原始字典 |
-| `read_pydantic()` | 统一读取接口: 解析为响应或事件模型 (按 command/type 分发) |
-| `write_jsonl(msg)` | 写入一行 JSON (委托 PIProcess) |
-| `prompt(message, images, streaming_behavior, request_id)` | 发送 prompt 指令 |
-| `follow_up(message, images, request_id)` | 排队投递 follow-up 消息 (**agent 空闲时不触发**, 请用 prompt 代替) |
-| `set_model(provider, model_id, request_id)` | 切换模型 |
-| `get_state(request_id)` | 获取当前状态 |
-| `bash(command, exclude_from_context, request_id)` | 执行 shell 命令 |
-| `get_commands(request_id)` | 获取可用指令列表 |
-| `_send_command(command)` | 序列化并写入指令 (供内部使用) |
+| `connect(**process_kwargs)` | 一条龙工厂: 建进程 → 建传输 → 起 reader |
+| `request(command, timeout)` | 发指令 → id→Future 路由 → 等对应响应 |
+| `set_timeout(timeout)` | 设置全局请求超时 (默认不限时, 单次可覆盖) |
+| `prompt(message, images, streamingBehavior)` | async generator 流式消费事件, 到 agent_settled 结束 |
+| `get_state()` / `state` 属性 | 状态快照 (惰性缓存) |
+| `subscribe(maxsize)` | 事件广播订阅 (fan-out, 返回 asyncio.Queue) |
+| `close()` | 取消后台 reader 并关闭传输/进程 |
 
-共 33 个指令发送方法，对应所有 RPC 指令类型。`request_id` 可选，提供后响应会回带相同 id 用于请求-响应关联。
+指令语义方法 33 个 (prompt / steer / follow_up / set_model / get_state / bash / get_commands 等):
+每个都构造命令模型 → `await request()` → 返回**具体响应模型** (含 data/success/error)。
+
+### PiTransport (传输层)
+
+| 方法 | 说明 |
+|------|------|
+| `send(command)` | 序列化指令模型并写入一行 |
+| `recv()` | 读一行 → 工厂校验解析 → 响应/事件模型 |
+| `close()` | 委托底层 IO 的 close_process / close |
 
 ### responses_factory / events_factory
 
@@ -141,7 +150,7 @@ event = events_factory.dispatcher({"type":"extension_ui_request","id":"u1","meth
 
 所有响应模型的 `command` 均为唯一 `Literal`，所有事件模型的 `type` 均为唯一 `Literal`，保证分发正确。未知类型抛出 `DispatchFailed`。
 
-`PIBackend.read_pydantic()` 即统一封装：优先匹配响应模型，非响应行回退到事件工厂——调用方拿到模型后自行决定使用或丢弃。
+`PiClient.request()` 即统一封装: 自动按 id 路由到对应等待方; 事件走 fan-out 广播。
 
 ## 开发
 
@@ -149,9 +158,9 @@ event = events_factory.dispatcher({"type":"extension_ui_request","id":"u1","meth
 # 安装依赖
 pip install pydantic orjson easy-factory
 
-# 测试 (100 个测试用例)
+# 测试
 PYTHONPATH=src pytest
-``````
+```
 
 ## 依赖
 

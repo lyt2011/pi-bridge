@@ -1,4 +1,4 @@
-from .core	import PIProcess, PIToolBackend, PIBackend
+from .core	import PIProcess, PIToolBackend, PiClient, PiTransport
 
 from . import models
 from .enums	import CommandEnum
@@ -8,7 +8,8 @@ __all__ = [
 	
 	"PIProcess",
 	"PIToolBackend",
-	"PIBackend",
+	"PiClient",
+	"PiTransport",
 	"models",
 	"CommandEnum",
 	

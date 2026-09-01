@@ -9,4 +9,4 @@ class AgentSettledEvent(BaseRPCEvent):
 	
 	"""AgentSettledEvent 事件模型"""
 	
-	type: Literal["agent_settled"] = "agent_settled"
+	type: Literal["agent_settled"] = Field(default="agent_settled", description="事件类型")

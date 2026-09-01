@@ -8,6 +8,6 @@ class CompactCommand(BaseCommand):
 	
 	"""CompactCommand RPC 指令"""
 	
-	type: Literal["compact"] = "compact"
+	type: Literal["compact"] = Field(default="compact", description="指令类型")
 	
 	customInstructions: Optional[str]	= Field(default=None, description="自定义压缩指令")

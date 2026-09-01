@@ -9,7 +9,7 @@ class ExtensionErrorEvent(BaseRPCEvent):
 	
 	"""ExtensionErrorEvent 事件模型"""
 	
-	type: Literal["extension_error"] = "extension_error"
+	type: Literal["extension_error"] = Field(default="extension_error", description="事件类型")
 	extensionPath: str = Field(default="", description="出错的扩展路径")
 	event: str = Field(default="", description="出错的事件名")
 	error: str = Field(default="", description="错误信息")

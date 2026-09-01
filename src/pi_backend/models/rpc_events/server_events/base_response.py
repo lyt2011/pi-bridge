@@ -10,7 +10,7 @@ class BaseResponse(BaseRPCEvent):
 	
 	"""PI AGENT 的响应基类"""
 	
-	type: Literal["response"] = "response"
+	type: Literal["response"] = Field(default="response", description="响应类型")
 	
 	id		: Optional[str]	= Field(default=None, description="请求/响应关联ID")
 	command	: CommandEnum	= Field(..., description="server返回的RPC指令")

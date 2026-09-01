@@ -5,6 +5,66 @@ from ._tool_events	import (
 	PrivateToolExecutionEnd
 )
 
+from ._shared	import (
+	# usage / model
+	Cost,
+	Usage,
+	ModelCost,
+	Model,
+	# content blocks
+	TextContent,
+	ImageContent,
+	ThinkingContent,
+	ToolCall,
+	ContentBlock,
+	# assistant message event (delta)
+	TextStartEvent,
+	TextDeltaEvent,
+	TextEndEvent,
+	ThinkingStartEvent,
+	ThinkingDeltaEvent,
+	ThinkingEndEvent,
+	ToolcallStartEvent,
+	ToolcallDeltaEvent,
+	ToolcallEndEvent,
+	AssistantMessageEvent,
+	# tool / compaction result
+	ToolExecutionResult,
+	CompactionResult,
+	# agent messages
+	UserMessage,
+	AssistantMessage,
+	ToolResultMessage,
+	BashExecutionMessage,
+	CustomMessage,
+	BranchSummaryMessage,
+	CompactionSummaryMessage,
+	AgentMessage,
+	# session stats / entries
+	SessionStatsTokens,
+	SessionStatsContextUsage,
+	SessionStatsData,
+	SessionEntry,
+	TreeEntry,
+	# response data payloads
+	StateData,
+	BashData,
+	ModelsData,
+	LevelsData,
+	ForkMessage,
+	ForkMessagesData,
+	EntriesData,
+	TreeData,
+	LastAssistantTextData,
+	ExportHtmlData,
+	CancelledData,
+	ForkData,
+	CommandInfo,
+	CommandsData,
+	MessagesData,
+	CycleModelData,
+)
+
 from .rpc_events	import BaseRPCEvent
 
 from .rpc_events.client_events	import (
@@ -127,6 +187,58 @@ from .rpc_events.server_events	import (
 
 
 __all__ = [
+
+	# _shared
+	"Cost",
+	"Usage",
+	"ModelCost",
+	"Model",
+	"TextContent",
+	"ImageContent",
+	"ThinkingContent",
+	"ToolCall",
+	"ContentBlock",
+	"TextStartEvent",
+	"TextDeltaEvent",
+	"TextEndEvent",
+	"ThinkingStartEvent",
+	"ThinkingDeltaEvent",
+	"ThinkingEndEvent",
+	"ToolcallStartEvent",
+	"ToolcallDeltaEvent",
+	"ToolcallEndEvent",
+	"AssistantMessageEvent",
+	"ToolExecutionResult",
+	"CompactionResult",
+	"UserMessage",
+	"AssistantMessage",
+	"ToolResultMessage",
+	"BashExecutionMessage",
+	"CustomMessage",
+	"BranchSummaryMessage",
+	"CompactionSummaryMessage",
+	"AgentMessage",
+	"SessionStatsTokens",
+	"SessionStatsContextUsage",
+	"SessionStatsData",
+	"SessionEntry",
+	"TreeEntry",
+	"StateData",
+	"BashData",
+	"ModelsData",
+	"LevelsData",
+	"ForkMessage",
+	"ForkMessagesData",
+	"EntriesData",
+	"TreeData",
+	"LastAssistantTextData",
+	"ExportHtmlData",
+	"CancelledData",
+	"ForkData",
+	"CommandInfo",
+	"CommandsData",
+	"MessagesData",
+	"CycleModelData",
 
 	# _tool_events
 	"PrivateToolEvent",

@@ -9,6 +9,6 @@ class BashExecutionUpdateEvent(BaseRPCEvent):
 	
 	"""BashExecutionUpdateEvent 事件模型"""
 	
-	type: Literal["bash_execution_update"] = "bash_execution_update"
+	type: Literal["bash_execution_update"] = Field(default="bash_execution_update", description="事件类型")
 	id	: Optional[str]	= Field(default=None, description="关联的 bash 指令 id")
 	delta: str			= Field(default="", description="命令输出增量")

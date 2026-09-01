@@ -9,4 +9,4 @@ class AgentStartEvent(BaseRPCEvent):
 	
 	"""AgentStartEvent 事件模型"""
 	
-	type: Literal["agent_start"] = "agent_start"
+	type: Literal["agent_start"] = Field(default="agent_start", description="事件类型")

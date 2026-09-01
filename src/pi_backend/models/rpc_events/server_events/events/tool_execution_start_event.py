@@ -9,7 +9,7 @@ class ToolExecutionStartEvent(BaseRPCEvent):
 	
 	"""ToolExecutionStartEvent 事件模型"""
 	
-	type: Literal["tool_execution_start"] = "tool_execution_start"
+	type: Literal["tool_execution_start"] = Field(default="tool_execution_start", description="事件类型")
 	toolCallId: str = Field(default="", description="工具调用 ID")
 	toolName: str = Field(default="", description="工具名")
 	args: Dict[str, Any] = Field(default_factory=dict, description="工具参数")

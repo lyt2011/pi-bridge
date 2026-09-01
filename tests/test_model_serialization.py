@@ -28,9 +28,16 @@ from pi_backend.enums import CommandEnum
 # ─── 响应模型序列化往返 ───
 
 def test_state_response_roundtrip():
-    obj = StateResponse(command="get_state", success=True, id="r1", data={"key": "val"})
+    obj = StateResponse(
+        command="get_state", success=True, id="r1",
+        data={"isStreaming": True, "messageCount": 5, "thinkingLevel": "medium"},
+    )
     obj2 = StateResponse.model_validate_json(obj.model_dump_json())
     assert obj2 == obj
+    assert obj2.data is not None
+    assert obj2.data.isStreaming is True
+    assert obj2.data.messageCount == 5
+    assert obj2.data.thinkingLevel == "medium"
 
 
 def test_state_response_command_serializes_to_string():
@@ -103,9 +110,15 @@ def test_agent_start_event_roundtrip():
 
 
 def test_message_update_event_roundtrip():
-    obj = MessageUpdateEvent(usage={"tokens": 100}, assistantMessageEvent={"type": "text_delta", "delta": "hi"})
+    obj = MessageUpdateEvent(
+        usage={"input": 10, "output": 20, "cacheRead": 0, "cacheWrite": 0, "totalTokens": 30},
+        assistantMessageEvent={"type": "text_delta", "contentIndex": 0, "delta": "hi"},
+    )
     obj2 = MessageUpdateEvent.model_validate_json(obj.model_dump_json())
     assert obj2 == obj
+    assert obj2.usage is not None and obj2.usage.totalTokens == 30
+    assert obj2.assistantMessageEvent is not None
+    assert obj2.assistantMessageEvent.type == "text_delta"
 
 
 def test_bash_execution_update_event_roundtrip():

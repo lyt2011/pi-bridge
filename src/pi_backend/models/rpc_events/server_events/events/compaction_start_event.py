@@ -9,5 +9,5 @@ class CompactionStartEvent(BaseRPCEvent):
 	
 	"""CompactionStartEvent 事件模型"""
 	
-	type: Literal["compaction_start"] = "compaction_start"
+	type: Literal["compaction_start"] = Field(default="compaction_start", description="事件类型")
 	reason: str = Field(default="", description="压缩原因: manual/threshold/overflow")

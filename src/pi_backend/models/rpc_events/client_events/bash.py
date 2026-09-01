@@ -8,7 +8,7 @@ class BashCommand(BaseCommand):
 	
 	"""BashCommand RPC 指令"""
 	
-	type: Literal["bash"] = "bash"
+	type: Literal["bash"] = Field(default="bash", description="指令类型")
 	
 	command: str	= Field(..., description="要执行的shell命令")
 	excludeFromContext: Optional[bool]	= Field(default=None, description="是否排除出上下文")

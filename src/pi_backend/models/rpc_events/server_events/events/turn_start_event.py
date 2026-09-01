@@ -9,4 +9,4 @@ class TurnStartEvent(BaseRPCEvent):
 	
 	"""TurnStartEvent 事件模型"""
 	
-	type: Literal["turn_start"] = "turn_start"
+	type: Literal["turn_start"] = Field(default="turn_start", description="事件类型")

@@ -9,7 +9,7 @@ class AutoRetryStartEvent(BaseRPCEvent):
 	
 	"""AutoRetryStartEvent 事件模型"""
 	
-	type: Literal["auto_retry_start"] = "auto_retry_start"
+	type: Literal["auto_retry_start"] = Field(default="auto_retry_start", description="事件类型")
 	attempt: int = Field(default=1, description="当前尝试次数")
 	maxAttempts: int = Field(default=1, description="最大尝试次数")
 	delayMs: int = Field(default=0, description="重试延迟 (毫秒)")

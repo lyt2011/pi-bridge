@@ -8,6 +8,6 @@ class SetSteeringModeCommand(BaseCommand):
 	
 	"""SetSteeringModeCommand RPC 指令"""
 	
-	type: Literal["set_steering_mode"] = "set_steering_mode"
+	type: Literal["set_steering_mode"] = Field(default="set_steering_mode", description="指令类型")
 	
 	mode: Literal["all", "one-at-a-time"]	= Field(..., description="steering消息投递模式")

@@ -1,6 +1,7 @@
 from ...base_rpc_event	import BaseRPCEvent
+from ...._shared	import AgentMessage
 
-from typing		import Literal, Dict, Any, List
+from typing		import Literal, Optional
 from pydantic	import Field
 
 
@@ -9,5 +10,5 @@ class MessageStartEvent(BaseRPCEvent):
 	
 	"""MessageStartEvent 事件模型"""
 	
-	type: Literal["message_start"] = "message_start"
-	message: Dict[str, Any] = Field(default_factory=dict, description="消息对象 (AgentMessage)")
+	type: Literal["message_start"] = Field(default="message_start", description="事件类型")
+	message: Optional[AgentMessage] = Field(default=None, description="消息对象 (AgentMessage)")

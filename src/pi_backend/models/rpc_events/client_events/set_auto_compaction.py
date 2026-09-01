@@ -8,6 +8,6 @@ class SetAutoCompactionCommand(BaseCommand):
 	
 	"""SetAutoCompactionCommand RPC 指令"""
 	
-	type: Literal["set_auto_compaction"] = "set_auto_compaction"
+	type: Literal["set_auto_compaction"] = Field(default="set_auto_compaction", description="指令类型")
 	
 	enabled: bool	= Field(..., description="是否启用自动压缩")

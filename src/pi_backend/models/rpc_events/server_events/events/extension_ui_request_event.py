@@ -9,7 +9,7 @@ class ExtensionUIRequestEvent(BaseRPCEvent):
 	
 	"""ExtensionUIRequestEvent 事件模型"""
 	
-	type: Literal["extension_ui_request"] = "extension_ui_request"
+	type: Literal["extension_ui_request"] = Field(default="extension_ui_request", description="事件类型")
 	id	: Optional[str]	= Field(default=None, description="UI 请求唯一 id")
 	method: str = Field(..., description="UI 方法: select/confirm/input/editor/notify/setStatus/setWidget/setTitle/set_editor_text")
 	title: str = Field(default="", description="标题")

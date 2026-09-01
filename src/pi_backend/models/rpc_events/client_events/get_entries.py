@@ -8,6 +8,6 @@ class GetEntriesCommand(BaseCommand):
 	
 	"""GetEntriesCommand RPC 指令"""
 	
-	type: Literal["get_entries"] = "get_entries"
+	type: Literal["get_entries"] = Field(default="get_entries", description="指令类型")
 	
 	since: Optional[str]	= Field(default=None, description="游标entry ID，仅返回其后的entries")

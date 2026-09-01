@@ -1,4 +1,4 @@
-from ..models import PrivateToolExecution, PrivateToolResult, PrivateToolExecutionEnd
+from ..models			import PrivateToolExecution, PrivateToolResult, PrivateToolExecutionEnd
 from ..models._internal import ToolResultChunk, ToolEndFlag
 
 from typing		import Dict, Callable, Any, Awaitable, Tuple, Optional, AsyncIterable, Union
@@ -43,6 +43,10 @@ class PIToolBackend:
 		
 		self.task	: Task		= None
 		self.server	: Server	= None
+	
+	@property # 守护任务与server实例同时存在才True
+	def is_available(self) -> bool:
+		return (self.task is not None) and (self.server is not None)
 	
 	def set_timeout(self, timeout: float) -> None:
 		self._execute_timeout_seconds = timeout
@@ -192,9 +196,10 @@ class PIToolBackend:
 			return None
 		
 		finally:
-			# 任何路径(含 CancelledError)都确保连接关闭、状态清理
+			
 			if tool_execution is None:
 				await self._close_writer(writer)
+			
 			else:
 				await self.ensure_close(tool_execution.id)
 			
@@ -342,7 +347,7 @@ class PIToolBackend:
 			self.task.cancel()
 			await self.task
 		
-		self.task = None
-		self.server = None
+		self.task	= None
+		self.server	= None
 		
 		return None

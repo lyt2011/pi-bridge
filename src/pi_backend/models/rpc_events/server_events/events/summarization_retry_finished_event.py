@@ -9,4 +9,4 @@ class SummarizationRetryFinishedEvent(BaseRPCEvent):
 	
 	"""SummarizationRetryFinishedEvent 事件模型"""
 	
-	type: Literal["summarization_retry_finished"] = "summarization_retry_finished"
+	type: Literal["summarization_retry_finished"] = Field(default="summarization_retry_finished", description="事件类型")

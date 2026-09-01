@@ -8,6 +8,6 @@ class SetSessionNameCommand(BaseCommand):
 	
 	"""SetSessionNameCommand RPC 指令"""
 	
-	type: Literal["set_session_name"] = "set_session_name"
+	type: Literal["set_session_name"] = Field(default="set_session_name", description="指令类型")
 	
 	name: str	= Field(..., description="会话显示名称")
