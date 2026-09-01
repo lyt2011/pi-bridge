@@ -1,4 +1,4 @@
-# pi-backend
+# pi-bridge
 
 PI AGENT 的 Python 后端封装。提供进程管理、RPC 指令发送、工具调用后端等核心能力。
 
@@ -8,7 +8,7 @@ PI AGENT 的 Python 后端封装。提供进程管理、RPC 指令发送、工�
 # easy-factory 为本地依赖包, 需先安装
 pip install /path/to/easy_factory/
 # 再安装本包
-pip install /path/to/pi-backend/
+pip install /path/to/pi-bridge/
 ```
 
 需要 Python >= 3.11, pydantic >= 2.13.4。
