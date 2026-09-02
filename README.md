@@ -77,6 +77,7 @@ asyncio.run(main())
 from pi_backend import PIToolBackend
 
 backend = PIToolBackend(host="127.0.0.1", port=39999)
+# 或者不传任何参数 自动从环境变量(PTBACKEND_HOST, PTBACKEND_PORT)读取 默认127.0.0.1:39999
 
 # 注册工具
 async def my_tool(param: str) -> str:

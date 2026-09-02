@@ -7,12 +7,15 @@ from asyncio	import StreamWriter, StreamReader, Lock, Server, Task
 from contextlib	import suppress, aclosing
 
 import asyncio
+import os
 
 
 ASYNC_FUNC = Callable[..., Awaitable[Any]]
 STREAM_PAIR = Tuple[StreamReader, StreamWriter]
 
 RECV_TIMEOUT = 5
+DEFAULT_HOST = str(os.environ.get("PTBACKEND_HOST", "127.0.0.1"))
+DEFAULT_PORT = int(os.environ.get("PTBACKEND_PORT", 39999))
 
 
 class PIToolBackend:
@@ -24,8 +27,8 @@ class PIToolBackend:
 
 	def __init__(
 		self, *,
-		host: str = "127.0.0.1",
-		port: int = 39999 # 防止端口冲突喵
+		host: str = DEFAULT_HOST,
+		port: int = DEFAULT_PORT
 	) -> None:
 		
 		self.host = host
@@ -102,8 +105,8 @@ class PIToolBackend:
 		
 		async with self._tw_op_lock:
 			
-			writers = list(self._connections)
-			handler_tasks = list(self._handler_tasks)
+			writers			= list(self._connections)
+			handler_tasks	= list(self._handler_tasks)
 			
 			self._connections.clear()
 			self._tool_waiter.clear()
