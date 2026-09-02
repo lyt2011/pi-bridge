@@ -182,8 +182,8 @@ async def collect_prompt(client, message, **kw):
     return events
 
 
-async def fake_connect(client_factory=None, io=None) -> tuple[PiClient, FakeIO]:
-    """模拟 connect 的装配路径: 返回已 start 的 client + FakeIO"""
+async def fake_open(client_factory=None, io=None) -> tuple[PiClient, FakeIO]:
+    """模拟 open 的装配路径: 返回已 start 的 client + FakeIO"""
     io = io or FakeIO()
     transport = PiTransport(io)
     client = PiClient(transport)
@@ -242,7 +242,7 @@ async def test_request_explicit_timeout_overrides_global():
 @pytest.mark.asyncio
 async def test_get_state_caches_state_property():
     """get_state: 发送指令, 返回 StateData 并缓存到 state 属性"""
-    client, io = await fake_connect()
+    client, io = await fake_open()
 
     task = asyncio.create_task(client.get_state())
     await asyncio.sleep(0)
@@ -263,14 +263,14 @@ async def test_get_state_caches_state_property():
 @pytest.mark.asyncio
 async def test_state_none_before_get_state():
     """state 属性: 未调用 get_state 前为 None"""
-    client, io = await fake_connect()
+    client, io = await fake_open()
     assert client.state is None
 
 
 @pytest.mark.asyncio
 async def test_get_state_missing_data_raises():
     """get_state: 响应缺 data 时抛 RuntimeError"""
-    client, io = await fake_connect()
+    client, io = await fake_open()
 
     task = asyncio.create_task(client.get_state())
     await asyncio.sleep(0)
@@ -282,8 +282,8 @@ async def test_get_state_missing_data_raises():
 
 
 @pytest.mark.asyncio
-async def test_connect_factory_with_fake_process(monkeypatch):
-    """connect: 工厂透传进程参数, 构建 client 并启动 reader"""
+async def test_open_factory_with_fake_process(monkeypatch):
+    """open: 工厂透传进程参数, 构建 client 并启动 reader"""
     io = FakeIO()
 
     class FakeProcess:
@@ -298,7 +298,7 @@ async def test_connect_factory_with_fake_process(monkeypatch):
 
     monkeypatch.setattr(PIProcess, "build_process", fake_build)
 
-    client = await PiClient.connect(session_dir="/tmp/fake")
+    client = await PiClient.open(session_dir="/tmp/fake")
     assert isinstance(client._transport._io, FakeProcess)
     assert client._reader is not None
 

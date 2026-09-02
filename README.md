@@ -48,7 +48,7 @@ from pi_backend import PiClient
 
 async def main():
     # 一条龙: 建进程 → 建传输 → 起后台 reader
-    client = await PiClient.connect(
+    client = await PiClient.open(
         session_dir = "/tmp/pi_session",
         tools      = ["bash", "read"],
         system_prompt = "你是助手",
@@ -114,7 +114,7 @@ server, task = await backend.run_server()
 
 | 方法 | 说明 |
 |------|------|
-| `connect(**process_kwargs)` | 一条龙工厂: 建进程 → 建传输 → 起 reader |
+| `open(**process_kwargs)` | 一条龙工厂: 建进程 → 建传输 → 起 reader |
 | `request(command, timeout)` | 发指令 → id→Future 路由 → 等对应响应 |
 | `set_timeout(timeout)` | 设置全局请求超时 (默认不限时, 单次可覆盖) |
 | `prompt(message, images, streamingBehavior)` | async generator 流式消费事件, 到 agent_settled 结束 |

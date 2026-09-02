@@ -29,7 +29,7 @@ def extract_text(msg) -> str:
 
 
 async def main() -> None:
-    client = await PiClient.connect(session_dir="/tmp/pi_e2e_v2")
+    client = await PiClient.open(session_dir="/tmp/pi_e2e_v2")
 
     # 切换模型
     resp = await client.set_model("seed_api", "deepseek-v4-flash")

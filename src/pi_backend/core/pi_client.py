@@ -47,7 +47,7 @@ class PiClient:
 	# ------------------------------------------------------------------
 	
 	@classmethod
-	async def connect(cls, **process_kwargs) -> "PiClient":
+	async def open(cls, **process_kwargs) -> "PiClient":
 		
 		"""
 		一条龙工厂: 构建 PIProcess → PiTransport → PiClient 并启动后台 reader
