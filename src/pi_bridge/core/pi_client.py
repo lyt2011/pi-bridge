@@ -12,6 +12,14 @@ import asyncio
 import uuid
 
 
+# ------------------------------------------------------------------
+# 类型别名
+# ------------------------------------------------------------------
+
+# 构建工厂: 任意 async callable (函数 / 可调用实例); None 表示用默认构建器
+BuildFactory = Optional[Callable[..., Awaitable[Any]]]
+
+
 class PiClient:
 	
 	"""
@@ -48,7 +56,7 @@ class PiClient:
 	# ------------------------------------------------------------------
 	
 	@staticmethod
-	async def _build_process(*args, build_factory: Optional[Callable[..., Awaitable[Any]]] = None, **kwargs) -> Any:
+	async def _build_process(*args, build_factory: BuildFactory = None, **kwargs) -> Any:
 		
 		"""
 		构建 PIProcess (默认 PIProcess.build)
@@ -64,7 +72,7 @@ class PiClient:
 		return await build_factory(*args, **kwargs)
 	
 	@staticmethod
-	async def _build_transport(*args, build_factory: Optional[Callable[..., Awaitable[Any]]] = None, **kwargs) -> Any:
+	async def _build_transport(*args, build_factory: BuildFactory = None, **kwargs) -> Any:
 		
 		"""
 		构建 PiTransport (默认 PiTransport.build)
