@@ -12,18 +12,18 @@ class StateData(BaseModel):
 	
 	"""get_state 响应 data"""
 	
-	model				: Optional[Model] = Field(default=None, description="当前模型")
-	thinkingLevel		: str	= Field(default="", description="思考级别")
-	isStreaming			: bool	= Field(default=False, description="是否正在流式输出")
-	isCompacting		: bool	= Field(default=False, description="是否正在压缩")
-	steeringMode		: str	= Field(default="", description="引导模式")
-	followUpMode		: str	= Field(default="", description="追问模式")
-	sessionFile			: Optional[str] = Field(default=None, description="会话文件路径")
-	sessionId			: Optional[str] = Field(default=None, description="会话ID")
-	sessionName			: Optional[str] = Field(default=None, description="会话名称")
+	model					: Optional[Model] = Field(default=None, description="当前模型")
+	thinkingLevel			: str	= Field(default="", description="思考级别")
+	isStreaming				: bool	= Field(default=False, description="是否正在流式输出")
+	isCompacting			: bool	= Field(default=False, description="是否正在压缩")
+	steeringMode			: str	= Field(default="", description="引导模式")
+	followUpMode			: str	= Field(default="", description="追问模式")
+	sessionFile				: Optional[str] = Field(default=None, description="会话文件路径")
+	sessionId				: Optional[str] = Field(default=None, description="会话ID")
+	sessionName				: Optional[str] = Field(default=None, description="会话名称")
 	autoCompactionEnabled	: bool	= Field(default=False, description="是否启用自动压缩")
-	messageCount		: int	= Field(default=0, description="消息数")
-	pendingMessageCount	: int	= Field(default=0, description="待处理消息数")
+	messageCount			: int	= Field(default=0, description="消息数")
+	pendingMessageCount		: int	= Field(default=0, description="待处理消息数")
 
 
 class BashData(BaseModel):

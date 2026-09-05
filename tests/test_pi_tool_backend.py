@@ -15,7 +15,7 @@ import socket
 import orjson
 import pytest
 
-from pi_backend import PIToolBackend
+from pi_bridge import PIToolBackend
 
 
 def _free_port() -> int:
@@ -27,14 +27,14 @@ def _free_port() -> int:
     return port
 
 
-async def _send_tool_request(port: int, tool_name: str, tool_param: dict, tool_id: str):
+async def _send_tool_request(port: int, tool_name: str, tool_params: dict, tool_id: str):
     """客户端连接并发送 tool_execution 请求，收集所有响应帧直到连接关闭"""
     reader, writer = await asyncio.open_connection("127.0.0.1", port)
     req = {
         "type": "tool_execution",
         "id": tool_id,
         "tool_name": tool_name,
-        "tool_param": tool_param,
+        "tool_params": tool_params,
     }
     writer.write(orjson.dumps(req) + b"\n")
     await writer.drain()

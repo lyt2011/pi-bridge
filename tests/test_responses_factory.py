@@ -9,9 +9,9 @@
 
 import pytest
 from easy_factory import DispatchFailed
-from pi_backend.factory import responses_factory
-from pi_backend.enums import CommandEnum
-from pi_backend.models import (
+from pi_bridge.factory import responses_factory
+from pi_bridge.enums import CommandEnum
+from pi_bridge.models import (
     PromptResponse,
     SteerResponse,
     AbortResponse,

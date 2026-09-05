@@ -8,8 +8,8 @@ import asyncio, os, sys
 
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", "src"))
 
-from pi_backend import PiClient
-from pi_backend.models import (
+from pi_bridge import PiClient
+from pi_bridge.models import (
 	MessageUpdateEvent, MessageEndEvent, AgentSettledEvent, TextDeltaEvent, TextEndEvent,
 )
 

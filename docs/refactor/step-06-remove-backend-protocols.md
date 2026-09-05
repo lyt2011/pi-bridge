@@ -23,13 +23,13 @@
 
 | 文件 | 动作 |
 |------|------|
-| `src/pi_backend/core/pi_backend.py` | 删除 |
-| `src/pi_backend/core/__init__.py` | 移除 PIBackend 导出 |
-| `src/pi_backend/__init__.py` | 移除 PIBackend 导出 |
-| `src/pi_backend/protocols/__init__.py` | 新增 (导出 LineProtocol) |
-| `src/pi_backend/protocols/io.py` | 新增 (LineProtocol 协议) |
-| `src/pi_backend/core/pi_transport.py` | io 参数加 `LineProtocol` 注解 |
-| `src/pi_backend/core/pi_client.py` | 导入改为 `from .. import models` + `models.XXX` 访问 |
+| `src/pi_bridge/core/pi_backend.py` | 删除 |
+| `src/pi_bridge/core/__init__.py` | 移除 PIBackend 导出 |
+| `src/pi_bridge/__init__.py` | 移除 PIBackend 导出 |
+| `src/pi_bridge/protocols/__init__.py` | 新增 (导出 LineProtocol) |
+| `src/pi_bridge/protocols/io.py` | 新增 (LineProtocol 协议) |
+| `src/pi_bridge/core/pi_transport.py` | io 参数加 `LineProtocol` 注解 |
+| `src/pi_bridge/core/pi_client.py` | 导入改为 `from .. import models` + `models.XXX` 访问 |
 | `tests/test_pi_backend.py` | 删除 (覆盖已转移) |
 | `tests/e2e_write_translate.py` | 删除 (v1, follow_up 队列问题) |
 | `tests/e2e_write_translate_v2.py` | 迁移到 PiClient |

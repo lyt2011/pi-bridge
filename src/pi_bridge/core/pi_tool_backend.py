@@ -3,7 +3,7 @@ from ..models._internal import ToolResultChunk, ToolEndFlag
 
 from typing		import Dict, Callable, Any, Awaitable, Tuple, Optional, AsyncIterable, Union
 from inspect	import isasyncgenfunction
-from asyncio	import StreamWriter, StreamReader, Lock, Server, Task
+from asyncio	import StreamWriter, StreamReader, Lock, Server, Task, CancelledError, wait_for
 from contextlib	import suppress, aclosing
 
 import asyncio
@@ -27,12 +27,12 @@ class PIToolBackend:
 
 	def __init__(
 		self, *,
-		host: str = DEFAULT_HOST,
-		port: int = DEFAULT_PORT
+		host: Optional[str] = None,
+		port: Optional[int] = None
 	) -> None:
 		
-		self.host = host
-		self.port = port
+		self.host = host or DEFAULT_HOST
+		self.port = port or DEFAULT_PORT
 		
 		# tool_waiter字典操作锁
 		self._tw_op_lock: Lock = Lock()
@@ -118,8 +118,8 @@ class PIToolBackend:
 			handler_task.cancel()
 		
 		for handler_task in handler_tasks:
-			with suppress(Exception, asyncio.CancelledError):
-				await handler_task
+			with suppress(Exception, CancelledError):
+				await wait_for(handler_task, timeout=5)
 		
 		await self._close_server()
 		
@@ -136,14 +136,14 @@ class PIToolBackend:
 		
 		await self._cleanup_connection(id)
 	
-	async def on_execute_tool(self, id: str, tool_name: str, tool_param: Dict[str, Any]) -> None:
+	async def on_execute_tool(self, id: str, tool_name: str, tool_params: Dict[str, Any]) -> None:
 		
 		"""
 		对外暴露带有超时的工具执行函数
 		自动发送结果/结束/超时帧
 		"""
 		
-		generation = self._execute_tool(tool_name, tool_param)
+		generation = self._execute_tool(tool_name, tool_params)
 		
 		# aclosing 保证生成器在循环结束(正常/异常/取消)后一定被关闭,资源不泄漏
 		async with aclosing(generation):
@@ -194,7 +194,7 @@ class PIToolBackend:
 				self._tool_waiter[tool_execution.id] = (reader, writer)
 			
 			# 只负责执行逻辑
-			await self.on_execute_tool(tool_execution.id, tool_execution.tool_name, tool_execution.tool_param)
+			await self.on_execute_tool(tool_execution.id, tool_execution.tool_name, tool_execution.tool_params)
 			
 			return None
 		
@@ -223,7 +223,7 @@ class PIToolBackend:
 		
 		return self.server, self.task
 	
-	async def _execute_tool(self, tool_name: str, tool_param: Dict[str, Any]) -> AsyncIterable[Any]:
+	async def _execute_tool(self, tool_name: str, tool_params: Dict[str, Any]) -> AsyncIterable[Any]:
 		
 		"""
 		兼容异步生成器/函数的工具执行器
@@ -238,13 +238,13 @@ class PIToolBackend:
 		# 生成器逻辑
 		if isasyncgenfunction(func):
 			
-			async for output in func(**tool_param):
+			async for output in func(**tool_params):
 				yield output
 		
 		# 普通异步函数逻辑
 		else:
 			
-			result = await func(**tool_param)
+			result = await func(**tool_params)
 			yield result
 		
 		return

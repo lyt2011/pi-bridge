@@ -7,9 +7,9 @@
 import orjson
 import pytest
 
-from pi_backend.core.pi_client		import PiClient
-from pi_backend.core.pi_transport	import PiTransport
-from pi_backend.models				import (
+from pi_bridge.core.pi_client		import PiClient
+from pi_bridge.core.pi_transport	import PiTransport
+from pi_bridge.models				import (
 	SteerResponse, FollowUpResponse, AbortResponse, ClearQueueResponse,
 	NewSessionResponse, GetMessagesResponse, SetModelResponse,
 	CycleModelResponse, GetAvailableModelsResponse, SetThinkingLevelResponse,

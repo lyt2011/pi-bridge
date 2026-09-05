@@ -20,8 +20,8 @@
 
 | 文件 | 动作 |
 |------|------|
-| `src/pi_backend/core/pi_client.py` | 新增 |
-| `src/pi_backend/core/__init__.py` | 导出 `PiClient` |
+| `src/pi_bridge/core/pi_client.py` | 新增 |
+| `src/pi_bridge/core/__init__.py` | 导出 `PiClient` |
 | `tests/test_pi_client.py` | 新增 7 个测试 |
 
 ## 测试

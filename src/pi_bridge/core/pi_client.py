@@ -1,4 +1,5 @@
-from typing		import Optional, Dict, List, Literal
+from typing		import Optional, Dict, List, Literal, Any, Self
+from collections.abc	import Awaitable, Callable
 from contextlib	import suppress
 
 from .pi_process	import PIProcess
@@ -46,21 +47,65 @@ class PiClient:
 	# 工厂: 建进程 → 建传输 → 建 client → 起 reader
 	# ------------------------------------------------------------------
 	
+	@staticmethod
+	async def _build_process(*args, build_factory: Optional[Callable[..., Awaitable[Any]]] = None, **kwargs) -> Any:
+		
+		"""
+		构建 PIProcess (默认 PIProcess.build)
+		
+		build_factory 仅关键字传参, 缺省回退到 PIProcess.build;
+		传入任意 async callable (函数 / 可调用实例) 可注入自定义构建逻辑;
+		args/kwargs 透传给 build_factory (如 open 里的进程参数)
+		"""
+		
+		if build_factory is None:
+			build_factory = PIProcess.build
+		
+		return await build_factory(*args, **kwargs)
+	
+	@staticmethod
+	async def _build_transport(*args, build_factory: Optional[Callable[..., Awaitable[Any]]] = None, **kwargs) -> Any:
+		
+		"""
+		构建 PiTransport (默认 PiTransport.build)
+		
+		build_factory 仅关键字传参, 缺省回退到 PiTransport.build;
+		传入任意 async callable (函数 / 可调用实例) 可注入自定义构建逻辑;
+		args/kwargs 透传给 build_factory (如 open 里的 io 伙伴)
+		"""
+		
+		if build_factory is None:
+			build_factory = PiTransport.build
+		
+		return await build_factory(*args, **kwargs)
+	
 	@classmethod
-	async def open(cls, **process_kwargs) -> "PiClient":
+	async def build(cls, transport: PiTransport, **kwargs) -> Self:
+		
+		"""
+		用已构建好的 transport 实例化 client
+		
+		kwargs 透传给 cls, 供子类扩展构造参数
+		"""
+		
+		return cls(transport, **kwargs)
+	
+	@classmethod
+	async def open(cls, **process_kwargs) -> Self:
 		
 		"""
 		一条龙工厂: 构建 PIProcess → PiTransport → PiClient 并启动后台 reader
 		
-		process_kwargs 透传给 PIProcess.build_process
+		process_kwargs 透传给 PIProcess.build
 		(pi_path / session / session_dir / tools / system_prompt)
 		"""
 		
-		process		= await PIProcess.build_process(**process_kwargs)
-		transport	= PiTransport(process)
-		client		= cls(transport)
+		process		= await cls._build_process(**process_kwargs)
+		transport	= await cls._build_transport(process)
+		client		= await cls.build(transport)
 		
 		await client.start()
+		
 		return client
 	
 	# ------------------------------------------------------------------

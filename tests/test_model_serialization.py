@@ -6,7 +6,7 @@
 3. 事件模型序列化往返
 """
 
-from pi_backend.models import (
+from pi_bridge.models import (
     StateResponse,
     PromptResponse,
     SetModelResponse,
@@ -22,7 +22,7 @@ from pi_backend.models import (
     CompactionEndEvent,
     AutoRetryStartEvent,
 )
-from pi_backend.enums import CommandEnum
+from pi_bridge.enums import CommandEnum
 
 
 # ─── 响应模型序列化往返 ───

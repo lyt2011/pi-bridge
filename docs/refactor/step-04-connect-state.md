@@ -21,7 +21,7 @@
 
 | 文件 | 动作 |
 |------|------|
-| `src/pi_backend/core/pi_client.py` | 新增 `connect()` / `get_state()` / `state`; `__init__` 加 `_state` |
+| `src/pi_bridge/core/pi_client.py` | 新增 `connect()` / `get_state()` / `state`; `__init__` 加 `_state` |
 | `tests/test_pi_client.py` | 新增 4 个用例 (共 15) |
 
 ## 测试

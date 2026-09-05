@@ -9,11 +9,11 @@ import json
 import orjson
 import pytest
 
-from pi_backend.core.pi_client		import PiClient
-from pi_backend.core.pi_process		import PIProcess
-from pi_backend.core.pi_transport	import PiTransport
-from pi_backend.models				import GetStateCommand, SetModelCommand
-from pi_backend.models				import StateResponse, MessageUpdateEvent, AgentStartEvent
+from pi_bridge.core.pi_client		import PiClient
+from pi_bridge.core.pi_process		import PIProcess
+from pi_bridge.core.pi_transport	import PiTransport
+from pi_bridge.models				import GetStateCommand, SetModelCommand
+from pi_bridge.models				import StateResponse, MessageUpdateEvent, AgentStartEvent
 
 import asyncio
 
@@ -296,7 +296,7 @@ async def test_open_factory_with_fake_process(monkeypatch):
         assert kwargs["session_dir"] == "/tmp/fake"
         return FakeProcess()
 
-    monkeypatch.setattr(PIProcess, "build_process", fake_build)
+    monkeypatch.setattr(PIProcess, "build", fake_build)
 
     client = await PiClient.open(session_dir="/tmp/fake")
     assert isinstance(client._transport._io, FakeProcess)

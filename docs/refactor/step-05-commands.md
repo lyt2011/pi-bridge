@@ -29,7 +29,7 @@ get_last_assistant_text / set_session_name / get_commands
 
 | 文件 | 动作 |
 |------|------|
-| `src/pi_backend/core/pi_client.py` | 新增 31 个语义方法 + 扩充模型导入 |
+| `src/pi_bridge/core/pi_client.py` | 新增 31 个语义方法 + 扩充模型导入 |
 | `tests/test_pi_client_commands.py` | 新增 32 个用例 (表驱动) |
 
 ## 测试

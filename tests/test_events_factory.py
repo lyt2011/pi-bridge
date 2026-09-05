@@ -8,8 +8,8 @@
 
 import pytest
 from easy_factory import DispatchFailed
-from pi_backend.factory import events_factory
-from pi_backend.models import (
+from pi_bridge.factory import events_factory
+from pi_bridge.models import (
     AgentStartEvent,
     AgentEndEvent,
     AgentSettledEvent,

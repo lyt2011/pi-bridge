@@ -5,8 +5,8 @@
 2. 字符串 "get_state" 能通过基类 validator 转成枚举（构造 dict 走 dispatcher 验证）
 """
 
-from pi_backend.enums import CommandEnum
-from pi_backend.factory import responses_factory
+from pi_bridge.enums import CommandEnum
+from pi_bridge.factory import responses_factory
 
 
 # ─── 成员存在性 ───
@@ -66,7 +66,7 @@ def test_string_get_last_assistant_text_converted_via_validator():
 
 def test_command_enum_direct_construction():
     """直接用枚举成员构造模型亦可"""
-    from pi_backend.models import StateResponse
+    from pi_bridge.models import StateResponse
     obj = StateResponse(command=CommandEnum.GET_STATE, success=True)
     assert obj.command == CommandEnum.GET_STATE
     assert obj.command.value == "get_state"

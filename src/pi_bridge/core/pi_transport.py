@@ -1,4 +1,4 @@
-from typing	import Optional
+from typing	import Optional, Self
 
 from ..factory		import responses_factory, events_factory
 from ..models		import BaseCommand, BaseRPCEvent
@@ -26,6 +26,17 @@ class PiTransport:
 	def __init__(self, io: LineProtocol) -> None:
 		
 		self._io = io
+	
+	@classmethod
+	async def build(cls, io: LineProtocol, **kwargs) -> Self:
+		
+		"""
+		用线级 IO 伙伴实例化 transport
+		
+		kwargs 透传给 cls, 供子类扩展构造参数
+		"""
+		
+		return cls(io, **kwargs)
 	
 	async def send(self, command: BaseCommand) -> None:
 		

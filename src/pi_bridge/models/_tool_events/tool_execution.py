@@ -9,4 +9,4 @@ class PrivateToolExecution(PrivateToolEvent):
 	type: str = Field(default="tool_execution", description="事件类型")
 
 	tool_name	: str				= Field(..., description="工具名")
-	tool_param	: Dict[str, Any]	= Field(..., description="工具参数")
+	tool_params	: Dict[str, Any]	= Field(..., description="工具参数")

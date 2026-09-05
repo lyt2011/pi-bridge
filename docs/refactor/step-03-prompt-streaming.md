@@ -29,7 +29,7 @@ async for evt in client.prompt("你好"):
 
 | 文件 | 动作 |
 |------|------|
-| `src/pi_backend/core/pi_client.py` | 新增 `prompt()`; 强化 `_read_loop`/`_route` |
+| `src/pi_bridge/core/pi_client.py` | 新增 `prompt()`; 强化 `_read_loop`/`_route` |
 | `tests/test_pi_client.py` | 新增 4 个 prompt 用例 |
 
 ## 测试

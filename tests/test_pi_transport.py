@@ -7,8 +7,8 @@
 import orjson
 import pytest
 
-from pi_backend.models import StateResponse, AgentStartEvent, MessageUpdateEvent
-from pi_backend.core.pi_transport import PiTransport
+from pi_bridge.models import StateResponse, AgentStartEvent, MessageUpdateEvent
+from pi_bridge.core.pi_transport import PiTransport
 
 
 class FakeIO:
@@ -38,7 +38,7 @@ async def test_send_serializes_command():
     """send 将指令序列化为 JSONL 写入"""
     fake = FakeIO([])
     transport = PiTransport(fake)
-    from pi_backend.models import GetStateCommand
+    from pi_bridge.models import GetStateCommand
     cmd = GetStateCommand()
     await transport.send(cmd)
     assert len(fake.written) == 1
@@ -112,7 +112,7 @@ async def test_close_falls_back_to_close():
 @pytest.mark.asyncio
 async def test_send_then_recv_roundtrip():
     """send + recv 往返: 发指令模型, 收响应行"""
-    from pi_backend.models import GetStateCommand
+    from pi_bridge.models import GetStateCommand
     cmd = GetStateCommand()
     resp_line = orjson.dumps({"type": "response", "command": "get_state", "success": True}).decode("utf-8")
     fake = FakeIO([resp_line])

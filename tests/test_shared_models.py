@@ -6,7 +6,7 @@ from pydantic	import ValidationError
 
 from pydantic	import TypeAdapter
 
-from pi_backend.models._shared	import (
+from pi_bridge.models._shared	import (
 	Usage,
 	Cost,
 	Model,

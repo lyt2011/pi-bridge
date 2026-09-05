@@ -16,7 +16,7 @@ pip install /path/to/pi-bridge/
 ## 架构
 
 ```
-pi_backend/
+pi_bridge/
 ├── core/              # 核心层
 │   ├── pi_process.py      # PI 子进程管理 (启动/读写/关闭)
 │   ├── pi_transport.py    # 传输层 (序列化 + 工厂校验, 不碰进程)
@@ -44,10 +44,10 @@ pi_backend/
 
 ```python
 import asyncio
-from pi_backend import PiClient
+from pi_bridge import PiClient
 
 async def main():
-    # 一条龙: 建进程 → 建传输 → 起后台 reader
+    # 一条龙: 建进程 → 建传输 → 建 client → 起后台 reader
     client = await PiClient.open(
         session_dir = "/tmp/pi_session",
         tools      = ["bash", "read"],
@@ -74,7 +74,7 @@ asyncio.run(main())
 ### 工具调用后端
 
 ```python
-from pi_backend import PIToolBackend
+from pi_bridge import PIToolBackend
 
 backend = PIToolBackend(host="127.0.0.1", port=39999)
 # 或者不传任何参数 自动从环境变量(PTBACKEND_HOST, PTBACKEND_PORT)读取 默认127.0.0.1:39999
@@ -95,7 +95,7 @@ server, task = await backend.run_server()
 
 | 方法 | 说明 |
 |------|------|
-| `build_process(*, pi_path, session, session_dir, tools, system_prompt)` | 构建并启动 pi 子进程 (RPC 模式, 全部关键字传参) |
+| `build(*, pi_path, session, session_dir, tools, system_prompt)` | 构建并启动 pi 子进程 (RPC 模式, 全部关键字传参) |
 | `read_line()` | 从 stdout 读取一行 (UTF-8) |
 | `write_line(*lines)` | 向 stdin 写入一行或多行 (自动补 \n) |
 | `close_process()` | 关闭 stdin 并等待进程退出 |
@@ -114,7 +114,8 @@ server, task = await backend.run_server()
 
 | 方法 | 说明 |
 |------|------|
-| `open(**process_kwargs)` | 一条龙工厂: 建进程 → 建传输 → 起 reader |
+| `open(**process_kwargs)` | 一条龙工厂: 建进程 (`PIProcess.build`) → 建传输 (`PiTransport.build`) → 建 client (`build`) → 起 reader |
+| `build(transport, **kwargs)` | 用已构建的 transport 实例化 client (kwargs 透传, 供子类扩展) |
 | `request(command, timeout)` | 发指令 → id→Future 路由 → 等对应响应 |
 | `set_timeout(timeout)` | 设置全局请求超时 (默认不限时, 单次可覆盖) |
 | `prompt(message, images, streamingBehavior)` | async generator 流式消费事件, 到 agent_settled 结束 |
@@ -138,7 +139,7 @@ server, task = await backend.run_server()
 基于 `easy_factory` 的模型分发工厂，按判别字段自动分发：
 
 ```python
-from pi_backend.factory import responses_factory, events_factory
+from pi_bridge.factory import responses_factory, events_factory
 
 # 响应: 按 command 分发 (返回对应的 Response 模型)
 model = responses_factory.dispatcher({"type":"response","command":"get_state","success":True})

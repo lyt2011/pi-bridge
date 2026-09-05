@@ -20,7 +20,7 @@ class PIProcess:
 		self._process = pi_process
 	
 	@classmethod
-	async def build_process(
+	async def build(
 		cls, *,
 		pi_path			: Optional[str]			= DEFAULT_PI_PATH,
 		session			: Optional[str]			= None,
