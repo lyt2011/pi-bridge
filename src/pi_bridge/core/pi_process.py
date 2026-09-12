@@ -27,6 +27,7 @@ class PIProcess:
 		session_dir		: Optional[str]			= None,
 		tools			: Optional[List[str]]	= None,
 		system_prompt	: Optional[str]			= None,
+		buffer_limit	: int					= 64 * 1024,
 	) -> Self:
 		
 		"""
@@ -57,6 +58,7 @@ class PIProcess:
 			stdin	= asyncio.subprocess.PIPE,
 			stdout	= asyncio.subprocess.PIPE,
 			stderr	= asyncio.subprocess.DEVNULL,
+			limit	= buffer_limit,
 		)
 		
 		return cls(process)

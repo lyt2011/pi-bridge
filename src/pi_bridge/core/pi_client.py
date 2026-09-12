@@ -1,6 +1,6 @@
-from typing		import Optional, Dict, List, Literal, Any, Self
-from collections.abc	import Awaitable, Callable
-from contextlib	import suppress
+from typing				import Optional, Dict, List, Literal, Any, Self
+from collections.abc	import Awaitable, Callable, AsyncIterator
+from contextlib			import suppress
 
 from .pi_process	import PIProcess
 from .pi_transport	import PiTransport
@@ -230,7 +230,12 @@ class PiClient:
 	# 提示: 发 prompt 指令 → 流式消费事件
 	# ------------------------------------------------------------------
 	
-	async def prompt(self, message: str, *, images: Optional[list] = None, streamingBehavior: Optional[str] = None):
+	async def prompt(
+		self,
+		message				: str, *,
+		images				: Optional[list]	= None,
+		streamingBehavior	: Optional[str]		= None
+	) -> AsyncIterator[str]:
 		
 		"""
 		发送 prompt 指令并以 async generator 流式消费后续事件
@@ -346,6 +351,32 @@ class PiClient:
 		
 		return q
 	
+	async def receive_events(self, *event_type):
+
+		"""
+		以 async generator 消费事件广播, 仅产出指定类型的事件对象
+
+		可传入一个或多个事件类; 不传类型时产出全部事件。
+		reader 崩溃时抛出原始异常, 消费结束时自动退订。
+		"""
+
+		q = self.subscribe()
+
+		try:
+
+			while True:
+
+				event = await q.get()
+
+				if isinstance(event, BaseException):
+					raise event
+
+				if not event_type or isinstance(event, event_type):
+					yield event
+
+		finally:
+			self._subscribers.remove(q)
+
 	# ------------------------------------------------------------------
 	# 状态: get_state() 惰性缓存 → state 属性
 	# ------------------------------------------------------------------

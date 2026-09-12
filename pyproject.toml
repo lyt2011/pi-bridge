@@ -1,6 +1,6 @@
 [project]
 name = "pi-bridge"
-version = "0.5.4"
+version = "0.5.5"
 description = "PI AGENT 的 Python 后端封装"
 readme = "README.md"
 requires-python = ">=3.11"

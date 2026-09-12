@@ -45,6 +45,7 @@ pi_bridge/
 ```python
 import asyncio
 from pi_bridge import PiClient
+from pi_bridge.models import MessageUpdateEvent
 
 async def main():
     # 一条龙: 建进程 → 建传输 → 建 client → 起后台 reader
@@ -64,6 +65,10 @@ async def main():
     
     # 事件广播订阅 (ambient 事件)
     q = client.subscribe()
+
+    # 类型化过滤: 只取文本增量事件 (不传类型则接收全部)
+    async for evt in client.receive_events(MessageUpdateEvent):
+        print(evt)
     
     # 释放资源
     await client.close()
@@ -95,7 +100,7 @@ server, task = await backend.run_server()
 
 | 方法 | 说明 |
 |------|------|
-| `build(*, pi_path, session, session_dir, tools, system_prompt)` | 构建并启动 pi 子进程 (RPC 模式, 全部关键字传参) |
+| `build(*, pi_path, session, session_dir, tools, system_prompt, buffer_limit)` | 构建并启动 pi 子进程 (RPC 模式, 全部关键字传参; `buffer_limit` 控制 stdout 读取缓冲区, 默认 64KB) |
 | `read_line()` | 从 stdout 读取一行 (UTF-8) |
 | `write_line(*lines)` | 向 stdin 写入一行或多行 (自动补 \n) |
 | `close_process()` | 关闭 stdin 并等待进程退出 |
@@ -121,6 +126,7 @@ server, task = await backend.run_server()
 | `prompt(message, images, streamingBehavior)` | async generator 流式消费事件, 到 agent_settled 结束 |
 | `get_state()` / `state` 属性 | 状态快照 (惰性缓存) |
 | `subscribe(maxsize)` | 事件广播订阅 (fan-out, 返回 asyncio.Queue) |
+| `receive_events(*event_type)` | 类型化事件过滤: async generator, 仅 yield 匹配类型的事件 (不传则全部), 自动退订 |
 | `close()` | 取消后台 reader 并关闭传输/进程 |
 
 指令语义方法 33 个 (prompt / steer / follow_up / set_model / get_state / bash / get_commands 等):

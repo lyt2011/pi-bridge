@@ -14,6 +14,7 @@ from pi_bridge.core.pi_process		import PIProcess
 from pi_bridge.core.pi_transport	import PiTransport
 from pi_bridge.models				import GetStateCommand, SetModelCommand
 from pi_bridge.models				import StateResponse, MessageUpdateEvent, AgentStartEvent
+from pi_bridge.models				import AgentEndEvent
 
 import asyncio
 
@@ -116,6 +117,74 @@ async def test_events_broadcast_to_all_subscribers():
     assert isinstance(e1, AgentStartEvent)
     assert isinstance(e1b, MessageUpdateEvent)
     assert isinstance(e2, AgentStartEvent)
+
+
+@pytest.mark.asyncio
+async def test_receive_events_filters_single_type():
+    """receive_events: 单类型只 yield 匹配的事件对象"""
+    client, io = await make_client()
+    stream = client.receive_events(MessageUpdateEvent)
+
+    task = asyncio.create_task(anext(stream))
+    await asyncio.sleep(0)
+    io.push({"type": "agent_start"})
+    io.push({"type": "message_update"})
+
+    event = await asyncio.wait_for(task, timeout=1)
+    assert isinstance(event, MessageUpdateEvent)
+    await stream.aclose()
+
+
+@pytest.mark.asyncio
+async def test_receive_events_filters_multiple_types():
+    """receive_events: 多类型 yield 任一匹配的事件对象"""
+    client, io = await make_client()
+    stream = client.receive_events(AgentStartEvent, MessageUpdateEvent)
+
+    first = asyncio.create_task(anext(stream))
+    await asyncio.sleep(0)
+    io.push({"type": "agent_start"})
+    assert isinstance(await asyncio.wait_for(first, timeout=1), AgentStartEvent)
+
+    second = asyncio.create_task(anext(stream))
+    io.push({"type": "message_update"})
+    assert isinstance(await asyncio.wait_for(second, timeout=1), MessageUpdateEvent)
+    await stream.aclose()
+
+
+@pytest.mark.asyncio
+async def test_receive_events_skips_non_matching_events():
+    """receive_events: 不匹配事件被消费但不 yield"""
+    client, io = await make_client()
+    stream = client.receive_events(MessageUpdateEvent)
+
+    task = asyncio.create_task(anext(stream))
+    await asyncio.sleep(0)
+    io.push({"type": "agent_start"})
+
+    with pytest.raises(asyncio.TimeoutError):
+        await asyncio.wait_for(asyncio.shield(task), timeout=0.05)
+
+    io.push({"type": "message_update"})
+    assert isinstance(await asyncio.wait_for(task, timeout=1), MessageUpdateEvent)
+    await stream.aclose()
+
+
+@pytest.mark.asyncio
+async def test_receive_events_without_types_yields_all_events():
+    """receive_events: 零参数表示接收全部事件"""
+    client, io = await make_client()
+    stream = client.receive_events()
+
+    first = asyncio.create_task(anext(stream))
+    await asyncio.sleep(0)
+    io.push({"type": "agent_end"})
+    assert isinstance(await asyncio.wait_for(first, timeout=1), AgentEndEvent)
+
+    second = asyncio.create_task(anext(stream))
+    io.push({"type": "message_update"})
+    assert isinstance(await asyncio.wait_for(second, timeout=1), MessageUpdateEvent)
+    await stream.aclose()
 
 
 @pytest.mark.asyncio
