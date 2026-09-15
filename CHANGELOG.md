@@ -2,6 +2,17 @@
 
 本项目的所有重要变更都记录在此文件。格式基于 [Keep a Changelog](https://keepachangelog.com/zh-CN/1.1.0/)，版本遵循 [语义化版本](https://semver.org/lang/zh-CN/)。
 
+## [未发布]
+
+### 变更
+
+- `PiClient.prompt` 的 `streamingBehavior` 参数类型由 `Optional[str]` 收紧为 `Optional[Literal["steer", "followUp"]]`，IDE 与类型检查器可正确提示取值。
+
+### 清理
+
+- 移除 `PIToolBackend` 连接建立时的调试 `print`，避免污染 stdout。
+- `StateData` / `StateResponse` 字段顺序与格式对齐（无行为变化）。
+
 ## [0.5.5] - 2026-09-12
 
 ### 新增

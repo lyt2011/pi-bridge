@@ -123,7 +123,7 @@ server, task = await backend.run_server()
 | `build(transport, **kwargs)` | 用已构建的 transport 实例化 client (kwargs 透传, 供子类扩展) |
 | `request(command, timeout)` | 发指令 → id→Future 路由 → 等对应响应 |
 | `set_timeout(timeout)` | 设置全局请求超时 (默认不限时, 单次可覆盖) |
-| `prompt(message, images, streamingBehavior)` | async generator 流式消费事件, 到 agent_settled 结束 |
+| `prompt(message, images, streamingBehavior)` | async generator 流式消费事件, 到 agent_settled 结束。`streamingBehavior` 取值 `"steer"` / `"followUp"` (Literal, 默认 `None`) |
 | `get_state()` / `state` 属性 | 状态快照 (惰性缓存) |
 | `subscribe(maxsize)` | 事件广播订阅 (fan-out, 返回 asyncio.Queue) |
 | `receive_events(*event_type)` | 类型化事件过滤: async generator, 仅 yield 匹配类型的事件 (不传则全部), 自动退订 |

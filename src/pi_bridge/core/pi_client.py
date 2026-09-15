@@ -234,7 +234,7 @@ class PiClient:
 		self,
 		message				: str, *,
 		images				: Optional[list]	= None,
-		streamingBehavior	: Optional[str]		= None
+		streamingBehavior	: Optional[Literal["steer", "followUp"]] = None,
 	) -> AsyncIterator[str]:
 		
 		"""

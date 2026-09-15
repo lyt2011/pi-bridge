@@ -170,9 +170,6 @@ class PIToolBackend:
 		无论正常/异常/取消,finally 都会确保连接关闭、waiter 清理
 		"""
 		
-		addr = writer.get_extra_info('peername')
-		print(f"来自 {addr} 的连接")
-		
 		handler_task = asyncio.current_task()
 		
 		async with self._tw_op_lock:

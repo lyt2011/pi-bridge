@@ -10,6 +10,6 @@ class StateResponse(BaseResponse):
 	
 	"""StateResponse 响应模型"""
 	
-	command: Literal[CommandEnum.GET_STATE] = Field(default=CommandEnum.GET_STATE, description="响应指令类型")
-	data: Optional[StateData]				= Field(default=None, description="state 响应数据")
+	command	: Literal[CommandEnum.GET_STATE]	= Field(default=CommandEnum.GET_STATE, description="响应指令类型")
+	data	: Optional[StateData]				= Field(default=None, description="state 响应数据")
 
