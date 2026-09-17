@@ -2,7 +2,7 @@
 
 本项目的所有重要变更都记录在此文件。格式基于 [Keep a Changelog](https://keepachangelog.com/zh-CN/1.1.0/)，版本遵循 [语义化版本](https://semver.org/lang/zh-CN/)。
 
-## [未发布]
+## [0.6.0] - 2026-09-17
 
 ### 新增
 
@@ -11,10 +11,10 @@
 
 ### 变更
 
-- `PiClient.prompt` 在请求被拒（`success=False`）时由**静默结束（零事件）**改为抛出 `RequestRefuseError`；拒绝原因与响应本体不再丢失。
+- **破坏性** `PiClient.prompt`：请求被拒（`success=False`）时由**静默结束（零事件）**改为抛出 `RequestRefuseError`；拒绝原因与响应本体不再丢失，原先靠「迭代器空转」判断失败的调用方需捕获该异常。
 - `PiClient.prompt` 的 `streamingBehavior` 参数类型由 `Optional[str]` 收紧为 `Optional[Literal["steer", "followUp"]]`，IDE 与类型检查器可正确提示取值。
 - `PiClient.prompt` 的返回标注由 `AsyncIterator[str]` 修正为 `AsyncIterator[models.BaseEvent]`（实际产出一直是事件模型）。
-- `PIProcess.build` 的关键字参数 `session` 更名为 `session_id`（对应 PI CLI 的 `--session-id`）。
+- **破坏性** `PIProcess.build`：关键字参数 `session` 更名为 `session_id`（对应 PI CLI 的 `--session-id`），仍传旧参数名的调用方会报 `TypeError`。
 
 ### 测试
 
