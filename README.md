@@ -100,7 +100,7 @@ server, task = await backend.run_server()
 
 | 方法 | 说明 |
 |------|------|
-| `build(*, pi_path, session, session_dir, tools, system_prompt, buffer_limit)` | 构建并启动 pi 子进程 (RPC 模式, 全部关键字传参; `buffer_limit` 控制 stdout 读取缓冲区, 默认 64KB) |
+| `build(*, pi_path, session_id, session_dir, tools, system_prompt, buffer_limit)` | 构建并启动 pi 子进程 (RPC 模式, 全部关键字传参; `buffer_limit` 控制 stdout 读取缓冲区, 默认 64KB) |
 | `read_line()` | 从 stdout 读取一行 (UTF-8) |
 | `write_line(*lines)` | 向 stdin 写入一行或多行 (自动补 \n) |
 | `close_process()` | 关闭 stdin 并等待进程退出 |
@@ -123,7 +123,7 @@ server, task = await backend.run_server()
 | `build(transport, **kwargs)` | 用已构建的 transport 实例化 client (kwargs 透传, 供子类扩展) |
 | `request(command, timeout)` | 发指令 → id→Future 路由 → 等对应响应 |
 | `set_timeout(timeout)` | 设置全局请求超时 (默认不限时, 单次可覆盖) |
-| `prompt(message, images, streamingBehavior)` | async generator 流式消费事件, 到 agent_settled 结束。`streamingBehavior` 取值 `"steer"` / `"followUp"` (Literal, 默认 `None`) |
+| `prompt(message, images, streamingBehavior)` | async generator 流式消费事件, 到 agent_settled 结束。`streamingBehavior` 取值 `"steer"` / `"followUp"` (Literal, 默认 `None`)。PI 拒绝请求 (`success=False`) 时抛 `RequestRefuseError` |
 | `get_state()` / `state` 属性 | 状态快照 (惰性缓存) |
 | `subscribe(maxsize)` | 事件广播订阅 (fan-out, 返回 asyncio.Queue) |
 | `receive_events(*event_type)` | 类型化事件过滤: async generator, 仅 yield 匹配类型的事件 (不传则全部), 自动退订 |
@@ -131,6 +131,16 @@ server, task = await backend.run_server()
 
 指令语义方法 33 个 (prompt / steer / follow_up / set_model / get_state / bash / get_commands 等):
 每个都构造命令模型 → `await request()` → 返回**具体响应模型** (含 data/success/error)。
+
+### 错误体系
+
+| 异常 | 说明 |
+|------|------|
+| `BaseError` | 库内错误根基类, 便于 `except BaseError` 统一兜底 |
+| `RequestRefuseError` | 请求被 PI 拒绝 (`success=False`)。携带 `response` (响应本体), 拒绝原因/指令/请求 id 从它现取: `err.response.error` / `.command` / `.id` |
+
+约定: **拿得到响应的地方不抛** —— `request()` 与 33 个指令语义方法都原样返回响应, 由调用方自查 `success`;
+**吐掉了响应的地方必须抛** —— `prompt()` 只产出事件、调用方拿不到那个响应, 所以拒绝时抛 `RequestRefuseError`（否则表现为「零事件」的静默失败）。
 
 ### PiTransport (传输层)
 

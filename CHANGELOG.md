@@ -4,9 +4,22 @@
 
 ## [未发布]
 
+### 新增
+
+- 错误体系：新增 `errors` 子包与 `BaseError` 库内错误根基类，便于调用方 `except BaseError` 统一兜底。
+- `RequestRefuseError`：请求被 PI 拒绝（响应 `success=False`）时的具名异常，携带 `response`（响应本体，拒绝原因/指令/请求 id 均从它现取），可从 `pi_bridge` 包根直接导入。异常消息即 `response.error`（缺 `error` 字段时为空串）。
+
 ### 变更
 
+- `PiClient.prompt` 在请求被拒（`success=False`）时由**静默结束（零事件）**改为抛出 `RequestRefuseError`；拒绝原因与响应本体不再丢失。
 - `PiClient.prompt` 的 `streamingBehavior` 参数类型由 `Optional[str]` 收紧为 `Optional[Literal["steer", "followUp"]]`，IDE 与类型检查器可正确提示取值。
+- `PiClient.prompt` 的返回标注由 `AsyncIterator[str]` 修正为 `AsyncIterator[models.BaseEvent]`（实际产出一直是事件模型）。
+- `PIProcess.build` 的关键字参数 `session` 更名为 `session_id`（对应 PI CLI 的 `--session-id`）。
+
+### 测试
+
+- 新增 `tests/test_errors.py`（7 例）：导出路径 / 继承链 / response 单一真相源 / 消息只带拒绝原因 / 缺 `error` 字段时消息为空串 / 任意 `BaseResponse` 子类 / 以 `BaseError` 捕获。
+- `test_prompt_rejected_yields_nothing` 改为 `test_prompt_rejected_raises_request_refuse_error`（断异常字段 + 订阅者仍退订），并新增缺 `error` 字段的拒绝用例。
 
 ### 清理
 

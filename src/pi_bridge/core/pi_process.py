@@ -19,11 +19,14 @@ class PIProcess:
 		
 		self._process = pi_process
 	
+	# Future: 本方法的关键字参数是对外透传的公共面
+	# (PiClient.build 的 process_kwargs / PiClient 的 build_factory),
+	# 签名将来可能改动
 	@classmethod
 	async def build(
 		cls, *,
 		pi_path			: Optional[str]			= DEFAULT_PI_PATH,
-		session			: Optional[str]			= None,
+		session_id		: Optional[str]			= None,
 		session_dir		: Optional[str]			= None,
 		tools			: Optional[List[str]]	= None,
 		system_prompt	: Optional[str]			= None,
@@ -41,8 +44,8 @@ class PIProcess:
 		
 		args: List[str] = [pi_path, "--mode", "rpc"]
 		
-		if session is not None:
-			args += ["--session", session]
+		if session_id is not None:
+			args += ["--session-id", session_id]
 		
 		if session_dir is not None:
 			args += ["--session-dir", session_dir]

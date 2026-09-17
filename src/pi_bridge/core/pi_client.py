@@ -5,6 +5,7 @@ from contextlib			import suppress
 from .pi_process	import PIProcess
 from .pi_transport	import PiTransport
 from ..				import models
+from ..errors		import RequestRefuseError
 
 from easy_factory	import DispatchFailed
 
@@ -235,7 +236,7 @@ class PiClient:
 		message				: str, *,
 		images				: Optional[list]	= None,
 		streamingBehavior	: Optional[Literal["steer", "followUp"]] = None,
-	) -> AsyncIterator[str]:
+	) -> AsyncIterator[models.BaseEvent]:
 		
 		"""
 		发送 prompt 指令并以 async generator 流式消费后续事件
@@ -245,7 +246,7 @@ class PiClient:
 				print(evt)
 		
 		接受成功后, 依次 yield 每个事件, 遇到 models.AgentSettledEvent 结束;
-		接受被拒 (success=False) 时立即结束, 不产出事件
+		接受被拒 (success=False) 时抛出 RequestRefuseError (携带响应本体与拒绝原因)
 		"""
 		
 		cmd = models.PromptCommand(
@@ -262,7 +263,7 @@ class PiClient:
 			resp = await self.request(cmd)
 			
 			if not resp.success:
-				return
+				raise RequestRefuseError(resp)
 			
 			while True:
 				

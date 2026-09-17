@@ -15,6 +15,7 @@ from pi_bridge.core.pi_transport	import PiTransport
 from pi_bridge.models				import GetStateCommand, SetModelCommand
 from pi_bridge.models				import StateResponse, MessageUpdateEvent, AgentStartEvent
 from pi_bridge.models				import AgentEndEvent
+from pi_bridge					import BaseError, RequestRefuseError
 
 import asyncio
 
@@ -402,18 +403,57 @@ async def test_prompt_streams_events_until_settled():
 
 
 @pytest.mark.asyncio
-async def test_prompt_rejected_yields_nothing():
-    """prompt: 接受被拒 (success=False) 时不产出任何事件"""
+async def test_prompt_rejected_raises_request_refuse_error():
+    """prompt: 接受被拒 (success=False) 时抛出 RequestRefuseError, 响应本体与原因可回查"""
     client, io = await make_client()
 
     task = asyncio.create_task(collect_prompt(client, "你好"))
     await asyncio.sleep(0)
 
     rid = io.last_written()["id"]
+    io.push({**make_response_line("prompt", rid=rid, success=False), "error": "pi 正忙"})
+
+    with pytest.raises(RequestRefuseError) as exc_info:
+        await task
+
+    err = exc_info.value
+    assert isinstance(err, BaseError)            # 可从包根捕获到基类
+    assert err.response.id == rid                # 响应本体可回查
+    assert err.response.error == "pi 正忙"
+    assert "pi 正忙" in str(err)                 # 原因要出现在日志可见处
+
+    # 被拒不依赖异常路径收尾: 订阅者仍会被注销
+    assert client._subscribers == []
+
+    await client.close()
+
+
+@pytest.mark.asyncio
+async def test_prompt_rejected_without_error_field_yields_nothing():
+    """prompt: 拒绝响应缺 error 字段时消息为空串, 但响应本体仍可回查; 迭代器零产出"""
+    client, io = await make_client()
+
+    events = []
+
+    async def consume():
+        async for evt in client.prompt("你好"):
+            events.append(evt)
+
+    task = asyncio.create_task(consume())
+    await asyncio.sleep(0)
+
+    rid = io.last_written()["id"]
     io.push(make_response_line("prompt", rid=rid, success=False))
 
-    events = await task
+    with pytest.raises(RequestRefuseError) as exc_info:
+        await task
+
+    assert str(exc_info.value) == ""
+    assert exc_info.value.response.success is False
+    assert exc_info.value.response.id == rid
     assert events == []
+
+    await client.close()
 
 
 @pytest.mark.asyncio

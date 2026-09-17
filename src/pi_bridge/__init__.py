@@ -1,5 +1,6 @@
 from .core	import PIProcess, PIToolBackend, PiClient, PiTransport
 
+from .errors	import BaseError, RequestRefuseError
 from . import models
 from .enums	import CommandEnum
 
@@ -12,5 +13,7 @@ __all__ = [
 	"PiTransport",
 	"models",
 	"CommandEnum",
+	"BaseError",
+	"RequestRefuseError",
 	
 ]
